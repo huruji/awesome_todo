@@ -1,0 +1,227 @@
+ul.todos {
+  box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);
+  i {
+    cursor: pointer;
+  }
+  .todo {
+    border-bottom: 1px solid $divider;
+    input {
+      display: none;
+    }
+    & > div {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      justify-content: center;
+      &.info > div {
+        height: 24px;
+        line-height: 24px;
+        padding: 16px;
+      }
+      > .toggle {
+        order: 0;
+        flex-grow: 1;
+      }
+      > .content {
+        order: 1;
+        flex-grow: 9;
+        font-size: 18px;
+        input {
+          font-size: 18px;
+        }
+      }
+      > .operate {
+        flex-grow: 2;
+        order: 2;
+        text-align: right;
+        i {
+          padding: 0 4px;
+          &:last-child {
+            display: none;
+          }
+        }
+      }
+    }
+    & > .detail {
+      display: none;
+      color: $secondary-text;
+      & > div {
+        padding: 16px;
+        flex: 1;
+      }
+      span {
+        vertical-align: super;
+      }
+      ul {
+        display: inline-flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+        justify-content: center;
+      }
+    }
+  }
+  .undone {
+    .info {
+      color: $primary-text;
+      transition: all 0.25s;
+      cursor: default;
+      i {
+        transition: all 0.25s;
+        color: transparent;
+        visibility: hidden;
+      }
+      .toggle {
+        i:first-child {
+          display: none;
+        }
+      }
+      &:hover {
+        background-color: $light-primary;
+        color: $dark-primary;
+        i {
+          color: $dark-primary;
+          visibility: visible;
+        }
+      }
+    }
+  }
+  .done {
+    .info {
+      color: $primary-text;
+      transition: all 0.25s;
+      cursor: default;
+      .content {
+        text-decoration: line-through;
+      }
+      i {
+        transition: all 0.25s;
+        color: transparent;
+        visibility: hidden;
+      }
+      .toggle {
+        & > i {
+          display: none;
+          &:first-child {
+            display: inline-block;
+            color: $primary-text;
+            visibility: visible;
+          }
+        }
+      }
+      &:hover {
+        background-color: $light-primary;
+        color: $dark-primary;
+        i {
+          visibility: visible;
+          color: $dark-primary !important;
+        }
+      }
+    }
+  }
+  .members {
+    flex: 2 !important;
+    & > i {
+      color: $secondary-text;
+      &:last-of-type {
+        display: none;
+      }
+    }
+    .member {
+      margin: 0 4px;
+      i {
+        display: none;
+      }
+    }
+  }
+  .spread {
+    .info {
+      background-color: $primary;
+      color: $text-and-icons;
+      .toggle {
+        i:first-child {
+          color: $text-and-icons;
+          visibility: visible;
+        }
+      }
+      &:hover {
+        .toggle {
+          i:first-child {
+            color: $dark-primary;
+          }
+        }
+        .operate {
+          i:nth-child(2) {
+            color: $dark-primary;
+          }
+        }
+      }
+    }
+    .operate {
+      i:nth-child(2) {
+        color: $text-and-icons;
+        visibility: visible !important;
+      }
+    }
+    .detail {
+      display: flex;
+    }
+  }
+  .edit {
+    .info {
+      background-color: $light-primary;
+      &:hover {
+        i {
+          visibility: hidden;
+        }
+        .operate {
+          i {
+            &:last-child {
+              visibility: visible;
+              display: inline-block !important;
+            }
+          }
+        }
+      }
+    }
+    .content {
+      span {
+        display: none;
+      }
+      input {
+        display: block;
+        background-color: $text-and-icons;
+        width: 100%;
+      }
+    }
+    .toggle {
+      i {
+        color: $primary-text !important;
+      }
+    }
+    .operate {
+      i {
+        visibility: hidden;
+        color: $primary-text !important;
+        &:last-child {
+          visibility: visible;
+          display: inline-block !important;
+        }
+      }
+    }
+    .member {
+      i {
+        display: inline-block;
+      }
+    }
+  }
+}
+.todo {
+  .done {
+    display: none;
+  }
+}
+.complete {
+  .undone {
+    display: none;
+  }
+}
