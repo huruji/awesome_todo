@@ -1,13 +1,15 @@
-import observer from './observer'
+import Register from './register'
 
 class Parser {
   constructor(el, data, elist) {
     this._data = data
+    this.$register = new Register()
     this.$el = document.querySelector(el)
     this.$elist = elist
     this.$frag = this.node2Fragment(this.$el)
     this.scan(this.$frag)
     this.$el.appendChild(this.$frag)
+    this.$register.build()
   }
 
   node2Fragment(el) {
@@ -64,7 +66,25 @@ class Parser {
   parseEvent(node) {
     if(node.getAttribute('data-event')) {
       const eventName = node.getAttribute('data-event')
-      node.addEventListener(this.$elist[eventName].type, this.$elist[eventName].fn.bind(node))
+      const _type = this.$elist[eventName].type
+      const _fn = this.$elist[eventName].fn.bind(node)
+      if(_type === 'input') {
+        let cmp = false
+        node.addEventListener('compositionstart', function() {
+          cmp = true
+        })
+        node.addEventListener('compositionend', function() {
+          cmp = false
+          node.dispatchEvent(new Event('input'))
+        })
+        node.addEventListener('input', function(){
+          if(!cmp) {
+            _fn()
+          }
+        })
+      } else {
+        node.addEventListener(_type, _fn)
+      }
     }
   }
 
@@ -75,10 +95,9 @@ class Parser {
       if(!node.classList.contains(_data.data)) {
         node.classList.add(_data.data)
       }
-      observer(this._data, _data.path, function(old, now) {
+      this.$register.regist(this._data, _data.path, function(old, now) {
         node.classList.remove(old)
         node.classList.add(now)
-        console.log(`${old} ---> ${now}`)
       })
     }
   }
@@ -92,13 +111,12 @@ class Parser {
       } else {
         node.innerText = _data.data
       }
-      observer(this._data, _data.path, function(old, now) {
+      this.$register.regist(this._data, _data.path, function(old, now) {
         if(node.tagName === 'INPUT') {
           node.value = now
         } else {
           node.innerText = now
         }
-        console.log(`${old} ---> ${now}`)
       })
     }
   }
@@ -120,7 +138,7 @@ class Parser {
       node.insertBefore(_copyItem, _item)
     })
     node.removeChild(_item)
-    observer(this._data, _listData.path, () => {
+    this.$register.regist(this._data, _listData.path, () => {
       while(node.firstChild) {
         node.removeChild(node.firstChild)
       }

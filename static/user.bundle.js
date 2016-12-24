@@ -50,7 +50,9 @@
 
 	__webpack_require__(1);
 
-	var _parser = __webpack_require__(6);
+	var _userEvents = __webpack_require__(6);
+
+	var _parser = __webpack_require__(7);
 
 	var _parser2 = _interopRequireDefault(_parser);
 
@@ -66,29 +68,7 @@
 	  toggleTodo: {
 	    type: 'click',
 	    fn: function fn() {
-	      var _i = Array.prototype.indexOf.call(this.parentNode.parentNode.parentNode.parentNode.children, this.parentNode.parentNode.parentNode);
-	      var _todo = data.todos[_i],
-	          state = void 0;
-	      if (_todo.finish === 'done') {
-	        state = 'undone';
-	      } else {
-	        state = 'done';
-	      }
-	      fetch('/todo/' + _todo._id, {
-	        method: 'PUT',
-	        body: JSON.stringify({ finish: state }),
-	        headers: {
-	          'Content-Type': 'application/json'
-	        }
-	      }).then(function (res) {
-	        return res.json();
-	      }).then(function (json) {
-	        if (json.finish) {
-	          _todo.finish = 'done';
-	        } else {
-	          _todo.finish = 'undone';
-	        }
-	      });
+	      (0, _userEvents.toggleTodo)(data, this.parentNode.parentNode.parentNode);
 	    }
 	  },
 	  edit: {
@@ -110,38 +90,13 @@
 	  update: {
 	    type: 'click',
 	    fn: function fn() {
-	      var _i = Array.prototype.indexOf.call(this.parentNode.parentNode.parentNode.parentNode.parentNode.children, this.parentNode.parentNode.parentNode.parentNode);
-	      var _node = this.parentNode.parentNode.parentNode;
-	      var _todo = data.todos[_i];
-	      var _value = this.parentNode.previousElementSibling.lastElementChild.value;
-	      fetch('/todo/' + _todo._id, {
-	        method: 'PUT',
-	        body: JSON.stringify({ todo: _value }),
-	        headers: {
-	          'Content-Type': 'application/json'
-	        }
-	      }).then(function (res) {
-	        return res.json();
-	      }).then(function (json) {
-	        console.log(json);
-	        _todo.todo = json.todo;
-	        _node.classList.remove('edit');
-	      });
+	      _userEvents.updateTodo.call(this, data);
 	    }
 	  },
 	  remove: {
 	    type: 'click',
 	    fn: function fn() {
-	      var _i = Array.prototype.indexOf.call(this.parentNode.parentNode.parentNode.parentNode.parentNode.children, this.parentNode.parentNode.parentNode.parentNode);
-	      console.log(_i);
-	      var _todo = data.todos[_i];
-	      fetch('/todo/' + _todo._id, {
-	        method: 'DELETE'
-	      }).then(function (res) {
-	        if (res) {
-	          data.todos.splice(_i, 1);
-	        }
-	      });
+	      (0, _userEvents.removeTodo)(data, this.parentNode.parentNode.parentNode.parentNode);
 	    }
 	  }
 	};
@@ -149,7 +104,6 @@
 	var ipt = document.getElementById('ipt');
 	function submit() {
 	  var _value = ipt.firstElementChild.firstElementChild.value;
-	  console.log(_value);
 	  if (!_value) {
 	    return;
 	  }
@@ -162,7 +116,6 @@
 	  }).then(function (res) {
 	    return res.json();
 	  }).then(function (json) {
-	    console.log(json);
 	    var todo = {};
 	    todo._id = json._id;
 	    todo.todo = json.todo;
@@ -172,7 +125,7 @@
 	      todo.finish = 'undone';
 	    }
 	    data.todos.push(todo);
-	    ipt.firstElementChild.value = '';
+	    ipt.firstElementChild.firstElementChild.value = '';
 	  });
 	}
 	ipt.firstElementChild.lastElementChild.addEventListener('click', submit);
@@ -1068,6 +1021,77 @@
 
 /***/ },
 /* 6 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	function toggleTodo(data, todoEl) {
+	  var _i = Array.prototype.indexOf.call(todoEl.parentNode.children, todoEl);
+	  var _todo = data.todos[_i];
+	  var state = void 0;
+	  if (_todo.finish === 'done') {
+	    state = 'undone';
+	  } else {
+	    state = 'done';
+	  }
+	  fetch('/todo/' + _todo._id, {
+	    method: 'PUT',
+	    body: JSON.stringify({ finish: state }),
+	    headers: {
+	      'Content-Type': 'application/json'
+	    }
+	  }).then(function (res) {
+	    return res.json();
+	  }).then(function (json) {
+	    if (json.finish) {
+	      _todo.finish = 'done';
+	    } else {
+	      _todo.finish = 'undone';
+	    }
+	  });
+	}
+
+	function updateTodo(data) {
+	  var _todoEl = this.parentNode.parentNode.parentNode.parentNode;
+	  var _i = Array.prototype.indexOf.call(_todoEl.parentNode.children, _todoEl);
+	  var _node = this.parentNode.parentNode.parentNode;
+	  var _todo = data.todos[_i];
+	  var _value = this.parentNode.previousElementSibling.lastElementChild.value;
+	  fetch('/todo/' + _todo._id, {
+	    method: 'PUT',
+	    body: JSON.stringify({ todo: _value }),
+	    headers: {
+	      'Content-Type': 'application/json'
+	    }
+	  }).then(function (res) {
+	    return res.json();
+	  }).then(function (json) {
+	    _todo.todo = json.todo;
+	    _node.classList.remove('edit');
+	  });
+	}
+
+	function removeTodo(data, todoEl) {
+	  var _i = Array.prototype.indexOf.call(todoEl.parentNode.children, todoEl);
+	  var _todo = data.todos[_i];
+	  fetch('/todo/' + _todo._id, {
+	    method: 'DELETE'
+	  }).then(function (res) {
+	    if (res) {
+	      data.todos.splice(_i, 1);
+	    }
+	  });
+	}
+
+	exports.toggleTodo = toggleTodo;
+	exports.updateTodo = updateTodo;
+	exports.removeTodo = removeTodo;
+
+/***/ },
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1078,9 +1102,9 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _observer = __webpack_require__(7);
+	var _register = __webpack_require__(8);
 
-	var _observer2 = _interopRequireDefault(_observer);
+	var _register2 = _interopRequireDefault(_register);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1091,11 +1115,13 @@
 	    _classCallCheck(this, Parser);
 
 	    this._data = data;
+	    this.$register = new _register2.default();
 	    this.$el = document.querySelector(el);
 	    this.$elist = elist;
 	    this.$frag = this.node2Fragment(this.$el);
 	    this.scan(this.$frag);
 	    this.$el.appendChild(this.$frag);
+	    this.$register.build();
 	  }
 
 	  _createClass(Parser, [{
@@ -1157,9 +1183,33 @@
 	  }, {
 	    key: 'parseEvent',
 	    value: function parseEvent(node) {
+	      var _this2 = this;
+
 	      if (node.getAttribute('data-event')) {
-	        var eventName = node.getAttribute('data-event');
-	        node.addEventListener(this.$elist[eventName].type, this.$elist[eventName].fn.bind(node));
+	        (function () {
+	          var eventName = node.getAttribute('data-event');
+	          var _type = _this2.$elist[eventName].type;
+	          var _fn = _this2.$elist[eventName].fn.bind(node);
+	          if (_type === 'input') {
+	            (function () {
+	              var cmp = false;
+	              node.addEventListener('compositionstart', function () {
+	                cmp = true;
+	              });
+	              node.addEventListener('compositionend', function () {
+	                cmp = false;
+	                node.dispatchEvent(new Event('input'));
+	              });
+	              node.addEventListener('input', function () {
+	                if (!cmp) {
+	                  _fn();
+	                }
+	              });
+	            })();
+	          } else {
+	            node.addEventListener(_type, _fn);
+	          }
+	        })();
 	      }
 	    }
 	  }, {
@@ -1171,10 +1221,9 @@
 	        if (!node.classList.contains(_data.data)) {
 	          node.classList.add(_data.data);
 	        }
-	        (0, _observer2.default)(this._data, _data.path, function (old, now) {
+	        this.$register.regist(this._data, _data.path, function (old, now) {
 	          node.classList.remove(old);
 	          node.classList.add(now);
-	          console.log(old + ' ---> ' + now);
 	        });
 	      }
 	    }
@@ -1189,20 +1238,19 @@
 	        } else {
 	          node.innerText = _data.data;
 	        }
-	        (0, _observer2.default)(this._data, _data.path, function (old, now) {
+	        this.$register.regist(this._data, _data.path, function (old, now) {
 	          if (node.tagName === 'INPUT') {
 	            node.value = now;
 	          } else {
 	            node.innerText = now;
 	          }
-	          console.log(old + ' ---> ' + now);
 	        });
 	      }
 	    }
 	  }, {
 	    key: 'parseList',
 	    value: function parseList(node) {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      var _item = this.parseListItem(node);
 	      var _list = node.getAttribute('data-list');
@@ -1216,15 +1264,15 @@
 	          _copyItem.path = [];
 	        }
 	        _copyItem.path.push(index);
-	        _this2.scan(_copyItem);
+	        _this3.scan(_copyItem);
 	        node.insertBefore(_copyItem, _item);
 	      });
 	      node.removeChild(_item);
-	      (0, _observer2.default)(this._data, _listData.path, function () {
+	      this.$register.regist(this._data, _listData.path, function () {
 	        while (node.firstChild) {
 	          node.removeChild(node.firstChild);
 	        }
-	        var _listData = _this2.parseData(_list, node);
+	        var _listData = _this3.parseData(_list, node);
 	        node.appendChild(_item);
 	        _listData.data.forEach(function (_dataItem, index) {
 	          var _copyItem = _item.cloneNode(true);
@@ -1235,7 +1283,7 @@
 	            _copyItem.path = [];
 	          }
 	          _copyItem.path.push(index);
-	          _this2.scan(_copyItem);
+	          _this3.scan(_copyItem);
 	          node.insertBefore(_copyItem, _item);
 	        });
 	        node.removeChild(_item);
@@ -1272,7 +1320,66 @@
 	exports.default = Parser;
 
 /***/ },
-/* 7 */
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _observer = __webpack_require__(9);
+
+	var _observer2 = _interopRequireDefault(_observer);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Register = function () {
+	  function Register() {
+	    _classCallCheck(this, Register);
+
+	    this.routes = [];
+	  }
+
+	  _createClass(Register, [{
+	    key: 'regist',
+	    value: function regist(obj, k, fn) {
+	      var _i = this.routes.find(function (el) {
+	        if ((el.key === k || el.key.toString() === k.toString()) && Object.is(el.obj, obj)) {
+	          return el;
+	        }
+	      });
+	      if (_i) {
+	        _i.fn.push(fn);
+	      } else {
+	        this.routes.push({
+	          obj: obj,
+	          key: k,
+	          fn: [fn]
+	        });
+	      }
+	    }
+	  }, {
+	    key: 'build',
+	    value: function build() {
+	      this.routes.forEach(function (route) {
+	        (0, _observer2.default)(route.obj, route.key, route.fn);
+	      });
+	    }
+	  }]);
+
+	  return Register;
+	}();
+
+	exports.default = Register;
+
+/***/ },
+/* 9 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1299,7 +1406,9 @@
 	          },
 	          set: function set(now) {
 	            if (now !== old) {
-	              callback(old, now);
+	              callback.forEach(function (fn) {
+	                fn(old, now);
+	              });
 	            }
 	            old = now;
 	          }
@@ -1335,16 +1444,18 @@
 	      enumerable: true,
 	      configurable: true,
 	      value: function value() {
-	        var _arrayProto$method;
-
-	        var old = arr.slice();
+	        var _arrayProto$method,
+	            _this = this;
 
 	        for (var _len = arguments.length, arg = Array(_len), _key2 = 0; _key2 < _len; _key2++) {
 	          arg[_key2] = arguments[_key2];
 	        }
 
+	        var old = arr.slice();
 	        var now = (_arrayProto$method = arrayProto[method]).call.apply(_arrayProto$method, [this].concat(arg));
-	        callback.apply(undefined, [old, this].concat(arg));
+	        callback.forEach(function (fn) {
+	          fn.apply(undefined, [old, _this].concat(arg));
+	        });
 	        return now;
 	      }
 	    });

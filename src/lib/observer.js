@@ -16,7 +16,9 @@ function observer(obj, k, callback) {
         },
         set: function(now) {
           if(now !== old) {
-            callback(old, now)
+            callback.forEach((fn) => {
+              fn(old, now)
+            })
           }
           old = now
         }
@@ -53,7 +55,9 @@ function observeArray(arr, callback) {
       value: function(...arg) {
         let old = arr.slice()
         let now = arrayProto[method].call(this, ...arg)
-        callback(old, this, ...arg)
+        callback.forEach((fn) => {
+          fn(old, this, ...arg)
+        })
         return now
       },
     })
